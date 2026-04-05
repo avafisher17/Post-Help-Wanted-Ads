@@ -1,0 +1,10 @@
+{
+    "Name": "Post Help Wanted Ads",
+    "Author": "painfulcake",
+    "Version": "1.0.0",
+    "Description": "Post your own help wanted ads to get items from friendly NPCs!",
+    "UniqueID": "painfulcake.PostHelpWantedAds",
+    "EntryDll": "PostHelpWantedAds.dll",
+    "MinimumApiVersion": "4.0.0",
+    "UpdateKeys": []
+}
