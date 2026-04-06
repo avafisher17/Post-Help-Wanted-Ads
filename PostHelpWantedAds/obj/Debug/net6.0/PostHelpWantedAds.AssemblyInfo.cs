@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PostHelpWantedAds")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ed08ada3ab703303e7745a87562e3377ef0973d6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d67ecc2d4415974c59eef6bce75f8cb082adee91")]
 [assembly: System.Reflection.AssemblyProductAttribute("PostHelpWantedAds")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PostHelpWantedAds")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

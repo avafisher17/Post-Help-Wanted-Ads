@@ -17,35 +17,60 @@ namespace PostHelpWantedAds
     {
         private ModData _moddedData;
         private string _playerInput = "";
-        private NamingMenu _namingMenu = null;
+        private EscapableNamingMenu _namingMenu = null;
         private bool _hasShownBillboardMessage = false;
-        private int _postedItem = 0;
+        private string _postedItem = "";
+        private int _daysSincePost = 0;
 
         public override void Entry(IModHelper helper)
         {
             // Hook events here (like DayStarted, ButtonPressed, etc.)
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             Helper.Events.GameLoop.DayStarted += OnDayStarted;
+            Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
 
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
             Helper.Events.Display.MenuChanged += OnMenuChanged;
             Helper.Events.Content.AssetRequested += OnAssetRequested;
         }
+
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             _moddedData = Helper.Data.ReadSaveData<ModData>("PostHelpWantedAds") ?? new ModData();
         }
+
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
             //if (_moddedData.DidPostAd)
             //{
-            //   
+            //    _daysSincePost += 1;
+            //    if (_daysSincePost <= 2)
+            //    {
+            //        int requiredGold = Game1.objectData[_postedItem].Price * 3;
+            //        if (Game1.player.Money > requiredGold)
+            //        {
+
+            //        }
+            //    }
             //}
 
             _moddedData.DidPostAd = false; // reset daily state
             Monitor.Log("New day started, reset DidPostAd.", LogLevel.Info);
         }
-       
+
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        {
+            if (!Context.IsWorldReady) return;
+
+            if (_moddedData.DidPostAd && !Game1.player.hasQuest("PostHelpWantedAds.PostedAd"))
+            {
+                // Quest was cancelled or completed - handle accordingly
+                _moddedData.DidPostAd = false;
+                _postedItem = "";
+                Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
+            }
+        }
+
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             // Only care about world-ready and a specific key
@@ -71,7 +96,7 @@ namespace PostHelpWantedAds
             // Bring up text box for user input
             if (_moddedData.DidPostAd == false)
             {
-                _namingMenu = new NamingMenu(
+                _namingMenu = new EscapableNamingMenu(
                     naming =>
                     {
                         _playerInput = naming;
@@ -96,8 +121,9 @@ namespace PostHelpWantedAds
 
                                 if (isAvailable && inSeason)
                                 {
-                                    _postedItem = itemId;
-                                    Monitor.Log($"_postedItem set to: {_postedItem}", LogLevel.Info);
+                                    _postedItem = itemIdString;
+                                    Monitor.Log($"_postedItem set to: item {_postedItem}, item category: {Game1.objectData[_postedItem].Category}", LogLevel.Info);
+                                    
                                     Game1.chatBox.addMessage("Ad posted for " + _playerInput! + ". Let's see if anyone responds.", Color.White);
 
                                     Game1.player.addQuest("PostHelpWantedAds.PostedAd");
@@ -122,19 +148,21 @@ namespace PostHelpWantedAds
                         }
                     },
                     "Enter desired item:",
-                    "");
+                    () => { });
 
                 _namingMenu.randomButton.bounds = new Rectangle(0, 0, 0, 0);
                 _namingMenu.randomButton.visible = false;
                 _namingMenu.randomButton.myID = -1;
+                _namingMenu.textBox.Text = "";
                 Game1.activeClickableMenu = _namingMenu;;
             }
             else
             {
                 Monitor.Log("Already posted today.", LogLevel.Info);
-                Game1.addHUDMessage(new HUDMessage("You've already posted an ad!", HUDMessage.error_type));
+                Game1.chatBox.addMessage("You've already posted today. Try again tomorrow!", Color.Red);
             }
         }
+
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
             if (e.NameWithoutLocale.IsEquivalentTo("Data/Quests"))
@@ -143,7 +171,7 @@ namespace PostHelpWantedAds
                 {
                     var data = asset.AsDictionary<string, string>().Data;
                     // Format: "type/title/description/objective/[extra]/reward/cancelable/days"
-                    data["PostHelpWantedAds.PostedAd"] = $"Basic/Help Wanted Ad Posted/I've posted an ad for a {_playerInput}. The more friends I have in town, the more likely someone is to respond, I think!/Wait for somebody to bring you a {_playerInput}/0/true/2";
+                    data["PostHelpWantedAds.PostedAd"] = $"Basic/Help Wanted Ad Posted/I've posted an ad for a {_playerInput}. The more friends I have in town, the more likely someone is to respond, I think!/Wait for somebody to bring you a {_playerInput}/0/-1/0//true";
                 });
             }
         }
@@ -187,14 +215,12 @@ namespace PostHelpWantedAds
                 string itemIdString = "203"; // lol Stange Bun
                 return itemIdString;
             }
-            
         }
-
-        
 
         private bool isAvailableForQuests(int itemId)
         {
             bool isAvailable = false;
+            string itemIdString = itemId.ToString();
 
             // Check for typical items
             Dictionary<int, string> eligibleDefaultItems = new Dictionary<int, string>
@@ -202,7 +228,7 @@ namespace PostHelpWantedAds
                 // FORAGE
 
                 { 16,  "Wild Horseradish" },{ 18,  "Daffodil" },{ 20,  "Leek" },{ 22,  "Dandelion" },
-                { 257, "Morel" },{ 399, "Spring Onion" }, { 396, "Spice Berry" },{ 398, "Grape" },
+                { 399, "Spring Onion" }, { 396, "Spice Berry" },{ 398, "Grape" },
                 { 402, "Sweet Pea" },{ 404, "Common Mushroom" },{ 406, "Wild Plum" },{ 408, "Hazelnut" },
                 { 412, "Winter Root" },{ 414, "Crystal Fruit" },{ 416, "Snow Yam" },{ 418, "Crocus" },
                 { 78,  "Cave Carrot" },{ 283, "Holly"},{ 392, "Nautilus Shell"},{ 393, "Coral"},
@@ -222,7 +248,7 @@ namespace PostHelpWantedAds
                 // OTHERS
                 { 174, "Egg" },{ 176, "Large Egg" },{ 184, "Milk" },{ 186, "Large Milk" },
                 { 436, "Goat Milk" },{ 438, "L. Goat Milk" },{ 330, "Clay" },{ 723, "Oyster" },
-                { 719, "Mussel" },{ 718, "Cockle" }
+                { 719, "Mussel" },{ 718, "Cockle" }, { 167, "Joja Cola"}
             };
 
             if (eligibleDefaultItems.ContainsKey(itemId))
@@ -240,7 +266,7 @@ namespace PostHelpWantedAds
                     { 88,  "Coconut" },{ 90,  "Cactus Fruit" },{ 193, "Garlic" },{ 252, "Rhubarb" },
                     { 268, "Starfruit" },{ 274, "Artichoke" },{ 284, "Beet" },{ 259, "Fiddlehead Fern"},
                     { 400, "Strawberry" },{ 271, "Unmilled Rice" },{ 830, "Taro Root" },{ 832, "Pineapple" },
-                    { 851, "Magma Cap" },{ 852, "Dragon Tooth" },{ 829, "Ginger" },{ 815, "Tea Leaves" },
+                    { 851, "Magma Cap" },{ 829, "Ginger" },{ 815, "Tea Leaves" },{ 257, "Morel" },
                     { 787, "Battery Pack" },{ 338, "Refined Quartz" },{ 334, "Copper Bar" },{ 335, "Iron Bar" },
                     { 336, "Gold Bar" },{ 82, "Fire Quartz" },{ 80, "Quartz" },{ 72, "Diamond" },
                     { 70, "Jade" },{ 68, "Topaz" },{ 66, "Amethyst" },{ 64, "Ruby" },
@@ -249,15 +275,17 @@ namespace PostHelpWantedAds
 
                 if (eligibleShippedItems.ContainsKey(itemId))
                 {
-                    bool hasShipped = Game1.player.basicShipped.ContainsKey($"(O){itemId}");
-                    if (hasShipped)
+                    bool hasShipped = Game1.player.basicShipped.ContainsKey(itemIdString);
+                    bool hasEncountered = Game1.player.mineralsFound.ContainsKey(itemIdString);
+
+                    if (hasShipped || hasEncountered)
                     {
                         isAvailable = true;
                         return isAvailable;
                     }
                     else
                     {
-                        Game1.addHUDMessage(new HUDMessage("You haven't encountered that item yet", HUDMessage.error_type));
+                        Game1.addHUDMessage(new HUDMessage("You haven't encountered/shipped that item yet", HUDMessage.error_type));
                     }
                 }
                 else
@@ -282,7 +310,7 @@ namespace PostHelpWantedAds
 
                     if (eligibleFish.ContainsKey(itemId))
                     {
-                        bool hasCaught = Game1.player.fishCaught.ContainsKey($"(O){itemId}");
+                        bool hasCaught = Game1.player.fishCaught.ContainsKey(itemIdString);
                         if (hasCaught)
                         {
                             isAvailable = true;
@@ -309,7 +337,7 @@ namespace PostHelpWantedAds
             Dictionary<int, string> alwaysInSeason = new Dictionary<int, string>
             {
                 { 420, "Red Mushroom" },{ 422, "Purple Mushroom" },{ 88,  "Coconut" },{ 90,  "Cactus Fruit" },
-                { 851, "Magma Cap" },{ 852, "Dragon Tooth" },{ 829, "Ginger" },{ 815, "Tea Leaves" },
+                { 851, "Magma Cap" },{ 829, "Ginger" },{ 815, "Tea Leaves" },
                 { 787, "Battery Pack" },{ 338, "Refined Quartz" },{ 334, "Copper Bar" },{ 335, "Iron Bar" },
                 { 336, "Gold Bar" },{ 82, "Fire Quartz" },{ 80, "Quartz" },{ 72, "Diamond" },
                 { 70, "Jade" },{ 68, "Topaz" },{ 66, "Amethyst" },{ 64, "Ruby" },
@@ -318,7 +346,7 @@ namespace PostHelpWantedAds
                 { 174, "Egg" },{ 176, "Large Egg" },{ 184, "Milk" },{ 186, "Large Milk" },
                 { 436, "Goat Milk" },{ 438, "L. Goat Milk" },{ 330, "Clay" },{ 723, "Oyster" },
                 { 719, "Mussel" },{ 718, "Cockle" },{ 86, "Earth Crystal" },{ 84, "Frozen Tear" },
-                { 132, "Bream" },{ 136, "Largemouth Bass" },{ 142, "Carp" },
+                { 132, "Bream" },{ 136, "Largemouth Bass" },{ 142, "Carp" },{ 167, "Joja Cola"},
                 { 156, "Ghostfish" },{ 158, "Stonefish" },{ 161, "Ice Pip" },
                 { 162, "Lava Eel" },{ 164, "Sandfish" },{ 165, "Scorpion Carp" },{ 734, "Woodskip" },
                 { 700, "Bullhead" },{ 702, "Chub" },{ 722, "Periwinkle" },
@@ -434,7 +462,89 @@ namespace PostHelpWantedAds
                 }
             }
 
+            Monitor.Log($"Item {itemId} didn't match any season list, defaulting to in-season.", LogLevel.Warn);
+            inSeason = true;
+
             return inSeason;
+        }
+
+
+        private int villagerSelection(string postedItem)
+        {
+            int itemCategory = Game1.objectData[postedItem].Category;
+
+            if (itemCategory == StardewValley.Object.VegetableCategory || itemCategory == StardewValley.Object.FruitsCategory)
+            {
+                Dictionary<string, double> flowerVillagers = new Dictionary<string, double>
+                {
+                    { "Harvey", 0.05 },{ "Caroline", 0.4 },{ "Pierre", 0.1 },{ "Gus", 0.1 },{ "Lewis", 0.1 },{ "Jodi", 0.25 }
+                };
+                    
+            }
+
+            else if (itemCategory == StardewValley.Object.flowersCategory)
+            {
+                Dictionary<string, double> flowerVillagers = new Dictionary<string, double>
+                {
+                    { "Evelyn", 0.5 }, { "Caroline", 0.2 }, { "Haley", 0.1 }, { "Jodi", 0.2 }, { "Vincent", 0.2 }
+                };
+
+            }
+
+            else if (itemCategory == StardewValley.Object.FishCategory)
+            {
+                Dictionary<string, double> fishVillagers = new Dictionary<string, double>
+                {
+                    { "Evelyn", 0.5 }, { "Caroline", 0.2 }, { "Haley", 0.1 }, { "Jodi", 0.2 }
+                };
+            }
+
+            else if (itemCategory == StardewValley.Object.EggCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.MilkCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.junkCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.GemCategory || itemCategory == StardewValley.Object.mineralsCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.GreensCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.metalResources)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.CraftingCategory)
+            {
+
+            }
+
+            else if (itemCategory == StardewValley.Object.buildingResources)
+            {
+
+            }
+
+            else
+            {
+
+            }
+
+
         }
     }
 }

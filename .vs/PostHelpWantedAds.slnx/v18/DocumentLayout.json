@@ -7,16 +7,20 @@
       "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\modentry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|c:\\users\\abbyf\\onedrive\\documents\\c#\\repos\\posthelpwantedads\\posthelpwantedads\\escapablenamingmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\escapablenamingmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|c:\\users\\abbyf\\onedrive\\documents\\c#\\repos\\posthelpwantedads\\posthelpwantedads\\moddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\moddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|c:\\users\\abbyf\\onedrive\\documents\\c#\\repos\\posthelpwantedads\\posthelpwantedads\\posthelpwantedads.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\posthelpwantedads.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|c:\\users\\abbyf\\onedrive\\documents\\c#\\repos\\posthelpwantedads\\posthelpwantedads\\manifest.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\manifest.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|c:\\users\\abbyf\\onedrive\\documents\\c#\\repos\\posthelpwantedads\\posthelpwantedads\\posthelpwantedads.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{82693DB5-46F8-025B-18C8-C117A070559A}|PostHelpWantedAds\\PostHelpWantedAds.csproj|solutionrelative:posthelpwantedads\\posthelpwantedads.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,11 +30,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "EscapableNamingMenu.cs",
+              "DocumentMoniker": "C:\\Users\\abbyf\\OneDrive\\Documents\\C#\\Repos\\PostHelpWantedAds\\PostHelpWantedAds\\EscapableNamingMenu.cs",
+              "RelativeDocumentMoniker": "PostHelpWantedAds\\EscapableNamingMenu.cs",
+              "ToolTip": "C:\\Users\\abbyf\\OneDrive\\Documents\\C#\\Repos\\PostHelpWantedAds\\PostHelpWantedAds\\EscapableNamingMenu.cs",
+              "RelativeToolTip": "PostHelpWantedAds\\EscapableNamingMenu.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABEAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-06T10:45:46.761Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ModData.cs",
               "DocumentMoniker": "C:\\Users\\abbyf\\OneDrive\\Documents\\C#\\Repos\\PostHelpWantedAds\\PostHelpWantedAds\\ModData.cs",
               "RelativeDocumentMoniker": "PostHelpWantedAds\\ModData.cs",
@@ -60,14 +77,14 @@
               "RelativeDocumentMoniker": "PostHelpWantedAds\\ModEntry.cs",
               "ToolTip": "C:\\Users\\abbyf\\OneDrive\\Documents\\C#\\Repos\\PostHelpWantedAds\\PostHelpWantedAds\\ModEntry.cs",
               "RelativeToolTip": "PostHelpWantedAds\\ModEntry.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAAQwGQAAABiAAAAAAAAAA==",
+              "ViewState": "AgIAAN4BAAAAAAAAAAAIwOgBAABpAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-04T00:45:34.849Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "PostHelpWantedAds.csproj",
               "DocumentMoniker": "C:\\Users\\abbyf\\OneDrive\\Documents\\C#\\Repos\\PostHelpWantedAds\\PostHelpWantedAds\\PostHelpWantedAds.csproj",
               "RelativeDocumentMoniker": "PostHelpWantedAds\\PostHelpWantedAds.csproj",
