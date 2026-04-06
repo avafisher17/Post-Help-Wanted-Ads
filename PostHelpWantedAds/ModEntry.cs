@@ -8,6 +8,7 @@ using StardewValley;
 using StardewValley.GameData.Characters;
 using StardewValley.Menus;
 using System;
+using System.Collections.Generic;
 
 namespace PostHelpWantedAds
 {
@@ -74,12 +75,12 @@ namespace PostHelpWantedAds
                     naming =>
                     {
                         _playerInput = naming;
-                        Monitor.Log($"Player typed: {_playerInput}", LogLevel.Info);
+                        Monitor.Log($"Player requested {_playerInput}", LogLevel.Info);
+                        
+                        string itemIdString = getItemId(_playerInput);
 
-                        if (int.TryParse(_playerInput, out int itemId))
+                        if (int.TryParse(itemIdString, out int itemId))
                         {
-                            Monitor.Log($"Player requested item ID {itemId}", LogLevel.Info);
-
                             bool isAvailable = isAvailableForQuests(itemId);
                             if (!isAvailable)
                             {
@@ -97,7 +98,7 @@ namespace PostHelpWantedAds
                                 {
                                     _postedItem = itemId;
                                     Monitor.Log($"_postedItem set to: {_postedItem}", LogLevel.Info);
-                                    Game1.chatBox.addMessage("Ad posted for item " + itemId + "! Let's see if anyone responds.", Color.White);
+                                    Game1.chatBox.addMessage("Ad posted for " + _playerInput! + ". Let's see if anyone responds.", Color.White);
 
                                     Game1.player.addQuest("PostHelpWantedAds.PostedAd");
                                     Helper.GameContent.InvalidateCache("Data/Quests");
@@ -120,10 +121,12 @@ namespace PostHelpWantedAds
                             _namingMenu.textBox.Text = "";
                         }
                     },
-                    "Enter item ID:",
+                    "Enter desired item:",
                     "");
 
-                _namingMenu.randomButton.bounds = Rectangle.Empty;
+                _namingMenu.randomButton.bounds = new Rectangle(0, 0, 0, 0);
+                _namingMenu.randomButton.visible = false;
+                _namingMenu.randomButton.myID = -1;
                 Game1.activeClickableMenu = _namingMenu;;
             }
             else
@@ -140,7 +143,7 @@ namespace PostHelpWantedAds
                 {
                     var data = asset.AsDictionary<string, string>().Data;
                     // Format: "type/title/description/objective/[extra]/reward/cancelable/days"
-                    data["PostHelpWantedAds.PostedAd"] = $"Basic/Help Wanted Ad Posted/I've posted an ad for item {_postedItem}. The more friends I have in town, the more likely someone is to respond, I think!/Wait for somebody to bring you item {_postedItem}/0/true/2";
+                    data["PostHelpWantedAds.PostedAd"] = $"Basic/Help Wanted Ad Posted/I've posted an ad for a {_playerInput}. The more friends I have in town, the more likely someone is to respond, I think!/Wait for somebody to bring you a {_playerInput}/0/true/2";
                 });
             }
         }
@@ -163,6 +166,31 @@ namespace PostHelpWantedAds
                 _hasShownBillboardMessage = true;
             }
         }
+
+        private string getItemId(string playerInput)
+        {
+            Dictionary<string, string> nameItemLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var pair in Game1.objectData)
+            {
+                nameItemLookup[pair.Value.Name] = pair.Key;
+            }
+
+            try
+            {
+                string itemIdString = nameItemLookup[playerInput];
+                _playerInput = Game1.objectData[itemIdString].Name;
+
+                return itemIdString;
+            }
+            catch
+            {
+                string itemIdString = "203"; // lol Stange Bun
+                return itemIdString;
+            }
+            
+        }
+
+        
 
         private bool isAvailableForQuests(int itemId)
         {

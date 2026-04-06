@@ -6,3 +6,4 @@ C:\Users\abbyf\OneDrive\Documents\C#\Repos\PostHelpWantedAds\PostHelpWantedAds\o
 C:\Users\abbyf\OneDrive\Documents\C#\Repos\PostHelpWantedAds\PostHelpWantedAds\obj\Debug\net6.0\PostHelpWantedAds.AssemblyInfo.cs
 C:\Users\abbyf\OneDrive\Documents\C#\Repos\PostHelpWantedAds\PostHelpWantedAds\obj\Debug\net6.0\PostHelpWantedAds.csproj.CoreCompileInputs.cache
 C:\Users\abbyf\OneDrive\Documents\C#\Repos\PostHelpWantedAds\PostHelpWantedAds\obj\Debug\net6.0\PostHelpWantedAds.dll
+C:\Users\abbyf\OneDrive\Documents\C#\Repos\PostHelpWantedAds\PostHelpWantedAds\obj\Debug\net6.0\PostHelpWantedAds.sourcelink.json
