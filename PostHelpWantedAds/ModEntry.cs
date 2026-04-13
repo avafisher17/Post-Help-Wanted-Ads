@@ -11,6 +11,7 @@ using StardewValley.Menus;
 using StardewValley.Quests;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 namespace PostHelpWantedAds
 {
@@ -19,39 +20,29 @@ namespace PostHelpWantedAds
         private ModData _moddedData;
         private EscapableNamingMenu _namingMenu = null;
         private bool _hasShownBillboardMessage = false;
-        private bool _hasTriggeredMorningEvent = false;
-        private int _requiredGold = 0;
-        private bool _deliveryAccepted = false;
-        Random _random = new Random();
+        private Random _random = new Random();
+        private Dictionary<string, Dictionary<string, string>> _eventScripts;
 
         public override void Entry(IModHelper helper)
         {
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             Helper.Events.GameLoop.DayStarted += OnDayStarted;
             Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
-
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
             Helper.Events.Display.MenuChanged += OnMenuChanged;
             Helper.Events.Content.AssetRequested += OnAssetRequested;
+
+            _eventScripts = helper.ModContent.Load<Dictionary<string, Dictionary<string, string>>>("assets/eventscripts.json");
         }
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             _moddedData = Helper.Data.ReadSaveData<ModData>("PostHelpWantedAds") ?? new ModData();
 
-            Monitor.Log($"[DayStarted] ModData State — " +
-            $"DidPostAd: {_moddedData.DidPostAd}, " +
-            $"PostedItem: {_moddedData.PostedItem}, " +
-            $"ActiveQuestId: {_moddedData.ActiveQuestId}, " +
-            $"ActiveQuestData: {_moddedData.ActiveQuestData}",
-            LogLevel.Debug);
-
             if (_moddedData.DidPostAd && string.IsNullOrEmpty(_moddedData.ActiveQuestData))
             {
                 //If quest data is missing or empty, reset all posting state to defaults
                 cancelAd();
-                Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
-
                 Monitor.Log("Quest data missing; reset _moddedData to wipe slate", LogLevel.Warn);
                 Game1.chatBox.addMessage("Uh-oh, a gust of wind blew away the help wanted ad you posted!", Color.Red);
             }
@@ -64,6 +55,18 @@ namespace PostHelpWantedAds
 
         private void OnDayStarted(object sender, DayStartedEventArgs e)
         {
+            Monitor.Log($"[ModData Debug]", LogLevel.Debug);
+            Monitor.Log($"  DidPostAd: {_moddedData.DidPostAd}", LogLevel.Debug);
+            Monitor.Log($"  DaysSincePost: {_moddedData.DaysSincePost}", LogLevel.Debug);
+            Monitor.Log($"  ItemIdStr: {_moddedData.ItemIdStr}", LogLevel.Debug);
+            Monitor.Log($"  PostedItem: {_moddedData.PostedItem}", LogLevel.Debug);
+            Monitor.Log($"  ActiveQuestData: {_moddedData.ActiveQuestData}", LogLevel.Debug);
+            Monitor.Log($"  ActiveQuestId: {_moddedData.ActiveQuestId}", LogLevel.Debug);
+            Monitor.Log($"  HasTriggeredMorningEvent: {_moddedData.HasTriggeredMorningEvent}", LogLevel.Debug);
+            Monitor.Log($"  RequiredGold: {_moddedData.RequiredGold}", LogLevel.Debug);
+            Monitor.Log($"  DeliveryAccepted: {_moddedData.DeliveryAccepted}", LogLevel.Debug);
+            Monitor.Log($"  ItemCategory: {_moddedData.ItemCategory}", LogLevel.Debug);
+
             if (_moddedData.DidPostAd)
             {
                 _moddedData.DaysSincePost += 1;
@@ -76,11 +79,12 @@ namespace PostHelpWantedAds
                         return;
                     }
 
-                    _requiredGold = Game1.objectData[_moddedData.ItemIdStr].Price * 3;
-                    if (Game1.player.Money >= _requiredGold)
+                    if (Game1.player.Money >= _moddedData.RequiredGold)
                     {
-                        _moddedData.ChosenVillager = villagerSelection(_moddedData.ItemIdStr);
+                        _moddedData.ChosenVillager = villagerSelection();
                         Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
+                        Monitor.Log($"  ChosenVillager: {_moddedData.ChosenVillager}", LogLevel.Debug);
+
                         if (_moddedData.ChosenVillager != null)
                         {
                             bool willDeliver = this.willDeliver(_moddedData.ChosenVillager);
@@ -106,6 +110,7 @@ namespace PostHelpWantedAds
                 else
                 {
                     //Cancel ad 2 days after posting it
+                    Monitor.Log("Looks like nobody in town could get to your request. Cancelling ad.", LogLevel.Info);
                     cancelAd();
                 }
             }
@@ -121,16 +126,26 @@ namespace PostHelpWantedAds
             if (_moddedData.DidPostAd && !Game1.player.hasQuest("PostHelpWantedAds.PostedAd"))
             {
                 cancelAd();
-                Monitor.Log($"Error when adding quest. Cancelling ad.", LogLevel.Warn);
+                Monitor.Log("DidPostAd but !hasQuest. Cancelling ad.", LogLevel.Warn);
             }
 
-            if (_hasTriggeredMorningEvent && Game1.CurrentEvent == null && !_deliveryAccepted)
+            if (_moddedData.HasTriggeredMorningEvent && Game1.CurrentEvent == null && !_moddedData.DeliveryAccepted)
             {
-                Game1.player.addItemByMenuIfNecessary(new StardewValley.Object(_moddedData.ItemIdStr, 1));
                 Game1.player.removeQuest(_moddedData.ActiveQuestId);
-                Game1.player.Money -= _requiredGold;
+                //Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
+                Game1.player.Money -= _moddedData.RequiredGold;
+                var npc = Game1.getCharacterFromName(_moddedData.ChosenVillager);
+                if (Game1.player.friendshipData.TryGetValue(_moddedData.ChosenVillager, out var friendship))
+                {
+                    Monitor.Log($"{_moddedData.ChosenVillager} friendship points before delivery: {friendship.Points}", LogLevel.Debug);
+                    Game1.player.changeFriendship(150, npc);
+                    Monitor.Log($"{_moddedData.ChosenVillager} friendship level after delivery: {friendship.Points}", LogLevel.Debug);  
+                }
+                else
+                {
+                    Monitor.Log($"Error adding friendship points to {_moddedData.ChosenVillager}", LogLevel.Warn);
+                }
                 cancelAd();
-                _deliveryAccepted = true;
             }
         }
 
@@ -161,19 +176,25 @@ namespace PostHelpWantedAds
                     naming =>
                     {
                         _moddedData.PostedItem = naming;
-                        
-                        string itemIdString = getItemId(_moddedData.PostedItem);
 
-                        if (!string.IsNullOrEmpty(itemIdString))
+                        _moddedData.ItemIdStr = getItemId(_moddedData.PostedItem);
+                        _moddedData.RequiredGold = Game1.objectData[_moddedData.ItemIdStr].Price * 3;
+                        _moddedData.ItemCategory = Game1.objectData[_moddedData.ItemIdStr].Category;
+
+                        Monitor.Log($"ItemIdStr set to {_moddedData.ItemIdStr}", LogLevel.Debug);
+                        Monitor.Log($"RequiredGold set to {_moddedData.RequiredGold}", LogLevel.Debug);
+                        Monitor.Log($"ItemCategory set to {_moddedData.ItemCategory}", LogLevel.Debug);
+
+                        if (!string.IsNullOrEmpty(_moddedData.ItemIdStr))
                         {
-                            bool isAvailable = isAvailableForQuests(itemIdString);
+                            bool isAvailable = isAvailableForQuests(_moddedData.ItemIdStr);
                             if (!isAvailable)
                             {
                                 _namingMenu.textBox.Text = "";
                             }
                             else
                             {
-                                bool inSeason = isInSeason(itemIdString);
+                                bool inSeason = isInSeason(_moddedData.ItemIdStr);
                                 if (!inSeason)
                                 {
                                     _namingMenu.textBox.Text = "";
@@ -181,12 +202,10 @@ namespace PostHelpWantedAds
 
                                 if (inSeason)
                                 {
-                                    _moddedData.ItemIdStr = itemIdString;
-                                    
                                     Game1.chatBox.addMessage("Ad posted for " + _moddedData.PostedItem! + ". Be sure to have enough gold for a delivery.", Color.White);
 
                                     //Add jounral entry for quest
-                                    string questData = $"Basic/Help Wanted Ad Posted/I've posted an ad for a {_moddedData.PostedItem}. The more friends I have in town, the more likely someone is to respond, I'd say!/Have enough money for a {_moddedData.PostedItem}/0/-1/0//true";
+                                    string questData = $"Basic/Help Wanted Ad Posted/I've posted an ad for a {_moddedData.PostedItem}. The more friends I have in town, the more likely someone is to respond, I'd say!/Have {_moddedData.RequiredGold}G for a {_moddedData.PostedItem}/0/-1/0//true";
                                     _moddedData.ActiveQuestData = questData;
                                     _moddedData.ActiveQuestId = "PostHelpWantedAds.PostedAd";
                                     _moddedData.DidPostAd = true;
@@ -245,7 +264,7 @@ namespace PostHelpWantedAds
                 .GetField("dailyQuestBoard", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .GetValue(Game1.activeClickableMenu);
 
-            if (isHelpWanted && !_hasShownBillboardMessage)
+            if (isHelpWanted && !_hasShownBillboardMessage && !_moddedData.DidPostAd)
             {
                 Game1.chatBox.addMessage("Press P to post your own \"help wanted\" ad!", Color.Green);
                 _hasShownBillboardMessage = true;
@@ -265,7 +284,7 @@ namespace PostHelpWantedAds
                 string itemIdString = nameItemLookup[playerInput];
                 _moddedData.PostedItem = Game1.objectData[itemIdString].Name;
 
-                Monitor.Log($"Requested: {_moddedData.PostedItem}", LogLevel.Warn);
+                Monitor.Log($"PostedItem reset to {_moddedData.PostedItem}", LogLevel.Debug);
 
                 return itemIdString;
             }
@@ -320,9 +339,9 @@ namespace PostHelpWantedAds
                 // Check for items that must be unlocked before requesting
                 Dictionary<string, string> eligibleShippedItems = new Dictionary<string, string>
                 {
-                    { "266", "Red Cabbage" },{ "965", "Carrot" },{ "967", "Summer Squash" },{ "969", "Broccoli" },
-                    { "971", "Powdermelon" },{ "281", "Chanterelle" }, { "420", "Red Mushroom" },{ "422", "Purple Mushroom" },
-                    { "88",  "Coconut" },{ "90",  "Cactus Fruit" },{ "193", "Garlic" },{ "252", "Rhubarb" },
+                    { "266", "Red Cabbage" },{ "Carrot", "Carrot" },{ "SummerSquash", "Summer Squash" },{ "Broccoli", "Broccoli" },
+                    { "Powdermelon", "Powdermelon" },{ "281", "Chanterelle" }, { "420", "Red Mushroom" },{ "422", "Purple Mushroom" },
+                    { "88",  "Coconut" },{ "90", "Cactus Fruit" },{ "193", "Garlic" },{ "252", "Rhubarb" },
                     { "268", "Starfruit" },{ "274", "Artichoke" },{ "284", "Beet" },{ "259", "Fiddlehead Fern"},
                     { "400", "Strawberry" },{ "271", "Unmilled Rice" },{ "830", "Taro Root" },{ "832", "Pineapple" },
                     { "851", "Magma Cap" },{ "829", "Ginger" },{ "815", "Tea Leaves" },{ "257", "Morel" },
@@ -334,8 +353,8 @@ namespace PostHelpWantedAds
 
                 if (eligibleShippedItems.ContainsKey(itemId))
                 {
-                    bool hasShipped = Game1.player.basicShipped.ContainsKey("(O)" + itemId);
-                    bool hasEncountered = Game1.player.mineralsFound.ContainsKey("(O)" + itemId);
+                    bool hasShipped = Game1.player.basicShipped.ContainsKey(itemId);
+                    bool hasEncountered = Game1.player.mineralsFound.ContainsKey(itemId);
 
                     if (hasShipped || hasEncountered)
                     {
@@ -418,7 +437,7 @@ namespace PostHelpWantedAds
                 { "16",  "Wild Horseradish" },{ "18",  "Daffodil" },{ "20",  "Leek" },{ "22",  "Dandelion" },
                 { "257", "Morel" },{ "399", "Spring Onion" },{ "24",  "Parsnip" },{ "188", "Green Bean" },
                 { "190", "Cauliflower" },{ "192", "Potato" },{ "250", "Kale" },{ "591", "Tulip" },
-                { "597", "Blue Jazz" },{ "965", "Carrot" },{ "193", "Garlic" },{ "252", "Rhubarb" },
+                { "597", "Blue Jazz" },{ "Carrot", "Carrot" },{ "193", "Garlic" },{ "252", "Rhubarb" },
                 { "400", "Strawberry" },{ "271", "Unmilled Rice" },{ "129", "Anchovy" },{ "131", "Sardine" },
                 { "137", "Smallmouth Bass" },{ "143", "Catfish" },{ "145", "Sunfish" },{ "147", "Herring" },
                 { "148", "Eel" },{ "706", "Shad" },{ "708", "Halibut" },{ "267", "Flounder" },{ "296", "Salmonberry" }
@@ -429,7 +448,7 @@ namespace PostHelpWantedAds
                 { "396", "Spice Berry" },{ "398", "Grape" },{ "402", "Sweet Pea" },{ "254", "Melon" },
                 { "256", "Tomato" },{ "258", "Hot Pepper" },{ "260", "Blueberry" },{ "270", "Corn" },
                 { "304", "Hops" },{ "421", "Sunflower" },{ "593", "Summer Spangle" },{ "376", "Poppy" },
-                { "264", "Radish" },{ "262", "Wheat" },{ "266", "Red Cabbage" },{ "967", "Summer Squash" },
+                { "264", "Radish" },{ "262", "Wheat" },{ "266", "Red Cabbage" },{ "SummerSquash", "Summer Squash" },
                 { "268", "Starfruit" },{ "259", "Fiddlehead Fern" },{ "830", "Taro Root" },{ "832", "Pineapple" },
                 { "128", "Pufferfish" },{ "130", "Tuna" },{ "138", "Rainbow Trout" },{ "397", "Rainbow Shell" },
                 { "144", "Pike" },{ "145", "Sunfish" },{ "146", "Red Mullet" },{ "149", "Octopus" },
@@ -442,7 +461,7 @@ namespace PostHelpWantedAds
                 { "404", "Common Mushroom" },{ "406", "Wild Plum" },{ "408", "Hazelnut" },{ "410", "Blackberry" },
                 { "270", "Corn" },{ "421", "Sunflower" },{ "272", "Eggplant" },{ "278", "Bok Choy" },
                 { "280", "Yam" },{ "282", "Cranberries" },{ "300", "Amaranth" },{ "302", "Grape" },
-                { "595", "Fairy Rose" },{ "276", "Pumpkin" },{ "262", "Wheat" },{ "969", "Broccoli" },
+                { "595", "Fairy Rose" },{ "276", "Pumpkin" },{ "262", "Wheat" },{ "Broccoli", "Broccoli" },
                 { "274", "Artichoke" },{ "284", "Beet" },{ "798", "Midnight Carp" },{ "139", "Salmon" },
                 { "129", "Anchovy" },{ "131", "Sardine" },{ "137", "Smallmouth Bass" },{ "140", "Walleye" },
                 { "143", "Catfish" },{ "148", "Eel" },{ "150", "Red Snapper" },{ "154", "Sea Cucumber" },
@@ -453,7 +472,7 @@ namespace PostHelpWantedAds
             Dictionary<string, string> winterSeasonals = new Dictionary<string, string>
             {
                 { "412", "Winter Root" },{ "414", "Crystal Fruit" },{ "416", "Snow Yam" },{ "418", "Crocus" },
-                { "283", "Holly" },{ "392", "Nautilus Shell" },{ "971", "Powdermelon" },
+                { "283", "Holly" },{ "392", "Nautilus Shell" },{ "Powdermelon", "Powdermelon" },
                 { "130", "Tuna" },{ "131", "Sardine" },{ "146", "Red Mullet" },{ "147", "Herring" },
                 { "149", "Octopus" },{ "151", "Squid" },{ "154", "Sea Cucumber" },{ "155", "Super Cucumber" },
                 { "141", "Perch" },{ "698", "Sturgeon" },{ "705", "Albacore" },{ "707", "Lingcod" },
@@ -537,25 +556,23 @@ namespace PostHelpWantedAds
             return inSeason;
         }
 
-        private string villagerSelection(string postedItem)
+        private string villagerSelection()
         {
             //Different villagers have different odds of delivering certain types of items!
             //(E.g. Willy often delivers fish, Caroline will offer vegetables from her garden)
 
-            int itemCategory = Game1.objectData[postedItem].Category;
-
-            if (itemCategory == StardewValley.Object.VegetableCategory || itemCategory == StardewValley.Object.FruitsCategory)
+            if (_moddedData.ItemCategory == StardewValley.Object.VegetableCategory || _moddedData.ItemCategory == StardewValley.Object.FruitsCategory)
             {
                 Dictionary<string, double> cropVillagers = new Dictionary<string, double>
                 {
                     { "Harvey", 0.05 },{ "Caroline", 0.25 },{ "Pierre", 0.20 },{ "Gus", 0.15 },{ "Lewis", 0.1 },
-                    { "Jodi", 0.20 },{ "Kent", 0.05 }
+                    { "Jodi", 0.25 }
                 };
 
                 return rollVillager(cropVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.flowersCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.flowersCategory)
             {
                 Dictionary<string, double> flowerVillagers = new Dictionary<string, double>
                 {
@@ -565,17 +582,17 @@ namespace PostHelpWantedAds
                 return rollVillager(flowerVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.FishCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.FishCategory)
             {
                 Dictionary<string, double> fishVillagers = new Dictionary<string, double>
                 {
-                    { "Willy", 0.6 },{ "Elliot", 0.15 },{ "Pam", 0.05 },{ "Linus", 0.15 },{ "Leo", 0.05 }
+                    { "Willy", 0.5 },{ "Elliot", 0.15 },{ "Pam", 0.05 },{ "Linus", 0.15 },{ "Leo", 0.05 },{ "Kent", 0.10 }
                 };
 
                 return rollVillager(fishVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.MilkCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.MilkCategory)
             {
                 Dictionary<string, double> milkVillagers = new Dictionary<string, double>
                 {
@@ -586,7 +603,7 @@ namespace PostHelpWantedAds
                 return rollVillager(milkVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.EggCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.EggCategory)
             {
                 Dictionary<string, double> eggVillagers = new Dictionary<string, double>
                 {
@@ -597,7 +614,7 @@ namespace PostHelpWantedAds
                 return rollVillager(eggVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.junkCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.junkCategory)
             {
                 Dictionary<string, double> trashVillagers = new Dictionary<string, double>
                 {
@@ -607,17 +624,17 @@ namespace PostHelpWantedAds
                 return rollVillager(trashVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.mineralsCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.mineralsCategory)
             {
                 Dictionary<string, double> mineralVillagers = new Dictionary<string, double>
                 {
-                    { "Abigail", 0.32 },{ "Clint", 0.32 },{ "Linus", 0.04 },{ "Sebastian", 0.32 }
+                    { "Abigail", 0.34 },{ "Clint", 0.32 },{ "Sebastian", 0.34 }
                 };
 
                 return rollVillager(mineralVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.GemCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.GemCategory)
             {
                 Dictionary<string, double> gemVillagers = new Dictionary<string, double>
                 {
@@ -627,18 +644,18 @@ namespace PostHelpWantedAds
                 return rollVillager(gemVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.GreensCategory)
+            else if (_moddedData.ItemCategory == StardewValley.Object.GreensCategory)
             {
                 Dictionary<string, double> forageVillagers = new Dictionary<string, double>
                 {
-                    { "Pierre", 0.05 },{ "Evelyn", 0.05 },{ "Penny", 0.05 },{ "Elliot", 0.05 },{ "Vincent", 0.05 },
-                    { "Haley", 0.05 },{ "Leah", 0.3 },{ "Linus", 0.3 },{ "Leo", 0.05 },{ "Demetrius", 0.05 }
+                    { "Pierre", 0.05 },{ "Penny", 0.05 },{ "Elliot", 0.05 },{ "Vincent", 0.05 },
+                    { "Haley", 0.05 },{ "Leah", 0.35 },{ "Linus", 0.3 },{ "Leo", 0.05 },{ "Demetrius", 0.05 }
                 };
 
                 return rollVillager(forageVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.metalResources)
+            else if (_moddedData.ItemCategory == StardewValley.Object.metalResources)
             {
                 Dictionary<string, double> metalResourceVillagers = new Dictionary<string, double>
                 {
@@ -648,7 +665,7 @@ namespace PostHelpWantedAds
                 return rollVillager(metalResourceVillagers);
             }
 
-            else if (itemCategory == StardewValley.Object.buildingResources)
+            else if (_moddedData.ItemCategory == StardewValley.Object.buildingResources)
             {
                 Dictionary<string, double> buildingResourceVillagers = new Dictionary<string, double>
                 {
@@ -662,6 +679,8 @@ namespace PostHelpWantedAds
             else
             {
                 //If item falls outside any of the stated categories, it's free game for most villagers
+
+                Monitor.Log($"villagerSelection by category fell through. Ad is free game to anyone.", LogLevel.Debug);
                 Dictionary<string, double> defaultVillagers = new Dictionary<string, double>
                 {
                     { "Harvey", 0.5 },{ "Caroline", 0.5 },{ "Pierre", 0.5 },{ "Abigail", 0.5 },{ "Evelyn", 0.5 },
@@ -674,7 +693,6 @@ namespace PostHelpWantedAds
 
                 return rollVillager(defaultVillagers);
             }
-            return "";
         }
 
         private bool willDeliver(string chosenVillager)
@@ -696,27 +714,57 @@ namespace PostHelpWantedAds
 
         private void enableDelivery(object sender, WarpedEventArgs e)
         {
-            if (e.NewLocation is Farm && e.OldLocation is FarmHouse && !_hasTriggeredMorningEvent)
+            if (e.NewLocation is Farm && e.OldLocation is FarmHouse && !_moddedData.HasTriggeredMorningEvent)
             {
-                _hasTriggeredMorningEvent = true;
+                _moddedData.HasTriggeredMorningEvent = true;
+                Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
                 Helper.Events.Player.Warped -= enableDelivery;
 
-                string playerName = Game1.player.Name;
-                string eventScript = $"none/64 15/farmer 64 16 2 {_moddedData.ChosenVillager} 64 18 0/" +
-                    $"pause 1500/" +
-                    $"speak {_moddedData.ChosenVillager} \"$h Hey {playerName}!\"/" +
-                    $"speak {_moddedData.ChosenVillager} \"I saw on the bulletin board that you were looking for a {_moddedData.PostedItem}. I just so happened to have one, too!\"/" +
-                    $"speak {_moddedData.ChosenVillager} \"$h Here you go!\"/" +
-                    $"pause 250/" +
-                    $"playSound give_gift/" +
-                    $"pause 500/" +
-                    $"pause 500/" +
-                    $"emote farmer 20/" +
-                    $"pause 1000/" +
-                    $"speak {_moddedData.ChosenVillager} \"$h Glad I could help. Enjoy your {_moddedData.PostedItem}!\"/" +
-                    $"end";
-                Game1.currentLocation.startEvent(new StardewValley.Event(eventScript));
-                
+                string category = "Default";
+
+                var itemCategories = new Dictionary<int, string>
+                {
+                    { StardewValley.Object.GemCategory, "Gems" },{ StardewValley.Object.flowersCategory, "Flowers" },
+                    { StardewValley.Object.mineralsCategory, "Minerals" },{ StardewValley.Object.GreensCategory, "Forage" },
+                    { StardewValley.Object.VegetableCategory, "Crops" },{ StardewValley.Object.FishCategory, "Fish" },
+                    { StardewValley.Object.FruitsCategory, "Crops" },{ StardewValley.Object.MilkCategory, "Milk" },
+                    { StardewValley.Object.EggCategory, "Eggs" },{ StardewValley.Object.junkCategory, "Trash" },
+                    { StardewValley.Object.metalResources, "Metal" },{ StardewValley.Object.buildingResources, "Building" }
+                };
+
+                try
+                {
+                    category = itemCategories[_moddedData.ItemCategory];
+
+                    string template = _eventScripts[_moddedData.ChosenVillager][category];
+                    string eventScript = template
+                         .Replace("{{villager}}", _moddedData.ChosenVillager)
+                         .Replace("{{playerName}}", Game1.player.Name)
+                         .Replace("{{item}}", _moddedData.PostedItem)
+                         .Replace("{{itemId}}", _moddedData.ItemIdStr)
+                         .Replace("{{farmName}}", Game1.getFarm().Name);
+
+                    Game1.currentLocation.startEvent(new StardewValley.Event(eventScript));
+                }
+                catch
+                {
+                    string playerName = Game1.player.Name;
+                    string eventScript = $"none/64 15/farmer 64 16 2 {_moddedData.ChosenVillager} 64 18 0/" +
+                        $"pause 1500/" +
+                        $"speak {_moddedData.ChosenVillager} \"$h Hey {playerName}!\"/" +
+                        $"speak {_moddedData.ChosenVillager} \"I saw on the bulletin board that you were looking for a {_moddedData.PostedItem}. I just so happened to have one, too!\"/" +
+                        $"speak {_moddedData.ChosenVillager} \"$h Here you go!\"/" +
+                        $"pause 250/" +
+                        $"playSound give_gift/" +
+                        $"addItem (O){_moddedData.ItemIdStr} 1/" +
+                        $"pause 500/" +
+                        $"pause 500/" +
+                        $"emote farmer 20/" +
+                        $"pause 1000/" +
+                        $"speak {_moddedData.ChosenVillager} \"$h Glad I could help. Enjoy your {_moddedData.PostedItem}!\"/" +
+                        $"end";
+                    Game1.currentLocation.startEvent(new StardewValley.Event(eventScript));
+                } 
             }
         }
 
@@ -729,8 +777,9 @@ namespace PostHelpWantedAds
             _moddedData.DaysSincePost = 0;
             _moddedData.ActiveQuestData = "";
             _moddedData.ActiveQuestId = "";
-            _hasTriggeredMorningEvent = false;
-            _deliveryAccepted = false;
+            _moddedData.HasTriggeredMorningEvent = false;
+            _moddedData.DeliveryAccepted = false;
+            _moddedData.ItemCategory = 0;
             Game1.player.removeQuest("PostHelpWantedAds.PostedAd");
             Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
         }

@@ -15,6 +15,10 @@ namespace PostHelpWantedAds
         public string PostedItem { get; set; } = "";
         public string ActiveQuestData { get; set; } = "";
         public string ActiveQuestId { get; set; } = "";
+        public bool HasTriggeredMorningEvent { get; set; } = false;
+        public int RequiredGold { get; set; } = 0;
+        public bool DeliveryAccepted { get; set; } = false;
+        public int ItemCategory { get; set; } = 0;
 
     }
 }

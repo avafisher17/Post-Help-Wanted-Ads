@@ -1,0 +1,93 @@
+{
+	"Caroline": {
+		"Crops": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hi there, {{playerName}}!\"/speak {{villager}} \"Hope I didn't catch you at a bad time.\"/speak {{villager}} \"I saw you were looking for a fresh {{item}}, and wouldn't you know - a ripe one popped up in my garden just this morning!\"/speak {{villager}} \"$h I took that as a sign it was meant for you, {{playerName}}.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"I'm sure it's nothing like what you could grow out here, but it comes with love all the same.\"/speak {{villager}} \"$h Have a good day, {{playerName}}! And enjoy your {{item}}!\"/end",
+		"Flower": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hello, {{playerName}}!\"/faceDirection {{villager}} 3/speak {{villager}} \"I always love coming out to visit {{farmName}}. You've done such a good job with the place.\"/faceDirection {{villager}} 0/speak {{villager}} \"By the way, someone told me you were looking for a {{item}}.\"/speak {{villager}} \"$h I have some growing in my garden, and I'm happy to share.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"I'm surprised you don't have more flower fields out here, {{playerName}}.\"/speak {{villager}} \"$h Although I suppose you do need the space for crops.\"/faceDirection {{villager}} 1/speak {{villager}} \"Well, I'd better get home. If I leave Abby alone in the kitchen too long, she makes a mess of things.\"/speak {{villager}} \"$h Take care, {{playerName}}!\"/end"
+	},
+	"Harvey": {
+		"Crops": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hello {{playerName}}!/speak {{villager}} \"Hope you're doing well.\"/speak {{villager}} \"I'm here because I heard you were in need of a {{item}}.\"/speak {{villager}} \"$h I was picking up some groceries at Pierre's anyway, so I went ahead and grabbed one for you.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"Excellent choice in produce, by the way. {{item}} is chock full of nutrients!\"/speak {{villager}} \"Ehem, well, anyways - I'll let you go. I'm sure you have a busy day ahead of you.\"/speak {{villager}} \"$h Don't work yourself too hard, {{playerName}}!\"/speak {{villager}} /"I only want you stopping by the clinic for scheduled visits.\"/end"
+	},
+	"Pierre": {
+		"Crops": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hello {{playerName}}! Fine day, isn't it?\"/speak {{villager}} \"A little birdie told me you were need of a {{item}}.\"/speak {{villager}} \"$h As you know, Pierre's has the finest produce available anywhere - and I picked this one out, just for you!\"speak {{villager}} \"I'm more than happy to part with it, {{playerName}}. For an additional delivery fee, that is.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"$h Wonderful! Always great doing business with you, {{playerName}}!\"/faceDirection{{villager}} 1/speak {{villager}} \"Well, I better get back to the shop. Feel free to stop by anytime, you hear?\"/end",
+		"Forage": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hello {{playerName}}! You're looking well this morning.\"/speak {{villager}} \"So I saw you posted an ad for {{item}}.\"/speak {{villager}} \"$h As you know, Pierre's always has a fine selection of foraged goods in stock, including {{item}}!\"/speak {{villager}} \"This one right here can be yours, if you're willing to spare a little extra for the delivery costs.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"$h Wonderful! You are truly one of my most valued customers, {{playerName}}.\"/faceDirection {{villager}} 1/speak {{villager}} \"Well, time for me to head back to the register. Let me know if you need anything else, alright?\"/end"
+	},
+	"Abigail": {
+		"Gems": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hey {{playerName}}! Surprised to see me?\"/speak {{villager}} \"I saw on the board outside the shop that you wanted {{item}}.\"/speak {{villager}} \"$h It sounded like a good excuse for an adventure, so I ventured into the mines and found one!\"speak {{villager}} \"Wanna see?.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"$h Well I'm glad you like it, {{playerName}}!\"/speak {{villager}} \"This was a fun little quest for me. Let me know if you ever need anything else from the mines, okay?\"end",
+		"Minerals": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hey there, {{playerName}}!\"/faceDirection {{villager}} 3/speak {{villager}} \"Man, this place looks so much different now that you've cleared it all out.\"/speak {{villager}} \"$s I kinda miss being able to roam the open fields in the darkness...\"/faceDirection {{villager}} 0/speak {{villager}} \"Uh, anyway - someone told me you were looking for {{item}}!\"/speak {{villager}} \"$h Got a hankering for a crunchy snack, I see.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"Seriously though. Don't chomp on that unless you wanna break your teeth.\"/changePortrait Abigail Abigail_thinking/faceDirection {{villager}} 1/speak {{villager}} \"Y'know, I remember there was this one time, when I was in high school... I chipped a tooth on some Quartz.\"/speak {{villager}} \"The next morning though, my smile was completely whole again. It was so weird.\"/changePortrait Abigail Abigail/speak {{villager}} \"$s Kinda like magic or something...\"/faceDirection {{villager}} 0/speak {{villager}} \"$h *Snort* Sorry, I don't even know what I'm going on about.\"/speak {{villager}} \"Anyway, enjoy your {{item}}, {{playerName}}! See you around!\"/end"
+	},
+	"Evelyn": {
+		"Flowers": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Well hello, Dear!\"/faceDirection {{villager}} 3/speak {{villager}} \"It's always a treat to come out and see what you're up to here.\"/faceDirection {{villager}} 0/speak {{villager}} \"Your Grandfather would be very proud to see {{farmName}} Farm as it is today, {{playerName}}.\"/speak {{villager}} \"$h Oh, by the way, I come with a delivery for you! Here.\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"Alex mentioned seeing your advertisement at the board outside Pierre's.\"/speak {{villager}} \"$h Good thing he spotted it, because I don't know if my eyes could make heads or tails of it these days!\"/speak {{villager}} \"$s I really do need to find those reading glasses of mine...\"/speak {{villager}} \"Anyway, I hope you enjoy the {{item}}, my Dear.\"/speak {{villager}} \"$h Take care now!\"/end"
+	},
+	"Alex": {
+	
+	},
+	"Gus": {
+		"Crops": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hey {{playerName}}!\"/speak {{villager}} \"I was at Pierre's this morning, picking up some ingredients for today's special.\"/speak {{villager}} \"$h I spotted your {{item}} request on the way out, and wouldn't you know it, I've got a whole stock of them in the back room!\"/speak {{villager}} \"$s Heh, just don't tell Pierre where you got it, okay?\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"$h Always happy to help, {{playerName}}! It's what neighbors do.\"/speak {{villager}} \"Well, I'd best get back to the Saloon. Stop by though if you want to try today's special - it's a doozy!\"/speak {{villager}} \"$h See you later, {{playerName}}! Don't be a stranger, you hear?\"/end",
+	},
+	"Pam": {
+	
+	},
+	"Penny": {
+	
+	},
+	"Lewis": {
+		"Crops": "none/64 15/farmer 64 16 2 {{villager}} 64 18 0/pause 1500/speak {{villager}} \"$h Hello there, {{playerName}}!\"/speak {{villager}} \"Happy I caught you before you headed out for the day.\"/speak {{villager}} \"I spotted the ad for {{item}} you left on the bulletin board.\"/speak {{villager}} \"$h Isn't it nice knowing you can rely on your neighbors whenever you need a helping hand?\"/speak {{villager}} \"Anyway, I happen to have {{item}} growing in my garden this season, and I'm more than happy to share!\"/pause 250/playSound give_gift/addItem (O){{itemId}} 1/pause 500/pause 500/emote farmer 20/pause 1000/speak {{villager}} \"I do hope it's up to {{farmName}} standards.\"/speak {{villager}} \"$h Well, I'd best be off. Important mayoral duties and all that.\"/speak {{villager}} \"Enjoy the rest of your day, {{playerName}}!\"/end",
+	},
+	"Clint": {
+	
+	},
+	"Elliot": {
+	
+	},
+	"Willy": {
+	
+	},
+	"Sam": {
+	
+	},
+	"Vincent": {
+	
+	},
+	"Jodi": {
+	
+	},
+	"Kent": {
+	
+	},
+	"Haley": {
+	
+	},
+	"Emily": {
+	
+	},
+	"Leah": {
+	
+	},
+	"Shane": {
+	
+	},
+	"Jas": {
+	
+	},
+	"Marnie": {
+	
+	},
+	"Linus": {
+	
+	},
+	"Leo": {
+	
+	},
+	"Sebastian": {
+	
+	},
+	"Maru": {
+	
+	},
+	"Robin": {
+	
+	},
+	"Demetrius": {
+	
+	},
+
+}
