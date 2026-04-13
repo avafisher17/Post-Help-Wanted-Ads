@@ -2,7 +2,9 @@
 A Stardew Valley/SMAPI mod that allows players to post help wanted ads for in-game items via an in-game menu with quest journal integration.
 Item category, player luck, and friendship levels are all factored in when selecting which villager responds to the request. 
 
-***Status: In development — core menu and quest journal functionality complete***
+***Status: In development — core menu, quest journal, and delivery functionalities complete***
+
+[Posting Ads Demo](https://youtu.be/zGapywRzIdc) | [Getting a Delivery Demo](https://youtu.be/3IBLdWSyjh0)
 
 ## Features
 
@@ -24,7 +26,7 @@ Item category, player luck, and friendship levels are all factored in when selec
 * C#
 * .NET 6
 * MonoGame
-* Stardew Modding API, or [SMAPI](https://smapi.io/))
+* Stardew Modding API, or [SMAPI](https://smapi.io/)
 
 ### Author
 
