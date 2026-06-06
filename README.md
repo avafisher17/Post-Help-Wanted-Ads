@@ -16,8 +16,8 @@ Item category, player luck, and friendship levels are all factored in when selec
 ## How to Run
 
 1. Install [SMAPI](https://smapi.io/)
-2. Clone the repo
-3. Copy the PostHelpWantedAds folder into your Stardew Valley mods directory
+2. Download the ZIP file from the latest release
+3. Copy the contents of the ZIP into your Stardew Valley mods directory
    (often C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods)
 5. Launch the game via SMAPI
 
