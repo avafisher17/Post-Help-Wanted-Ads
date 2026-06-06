@@ -586,7 +586,7 @@ namespace PostHelpWantedAds
             {
                 Dictionary<string, double> fishVillagers = new Dictionary<string, double>
                 {
-                    { "Willy", 0.5 },{ "Elliot", 0.15 },{ "Pam", 0.05 },{ "Linus", 0.15 },{ "Leo", 0.05 },{ "Kent", 0.10 }
+                    { "Willy", 0.5 },{ "Elliott", 0.15 },{ "Pam", 0.05 },{ "Linus", 0.15 },{ "Leo", 0.05 },{ "Kent", 0.10 }
                 };
 
                 return rollVillager(fishVillagers);
@@ -648,7 +648,7 @@ namespace PostHelpWantedAds
             {
                 Dictionary<string, double> forageVillagers = new Dictionary<string, double>
                 {
-                    { "Pierre", 0.05 },{ "Penny", 0.05 },{ "Elliot", 0.05 },{ "Vincent", 0.05 },
+                    { "Pierre", 0.05 },{ "Penny", 0.05 },{ "Elliott", 0.05 },{ "Vincent", 0.05 },
                     { "Haley", 0.05 },{ "Leah", 0.35 },{ "Linus", 0.3 },{ "Leo", 0.05 },{ "Demetrius", 0.05 }
                 };
 
@@ -685,7 +685,7 @@ namespace PostHelpWantedAds
                 {
                     { "Harvey", 0.5 },{ "Caroline", 0.5 },{ "Pierre", 0.5 },{ "Abigail", 0.5 },{ "Evelyn", 0.5 },
                     { "Alex", 0.5 },{ "Gus", 0.5 },{ "Pam", 0.5 },{ "Penny", 0.5 },{ "Lewis", 0.5 },
-                    { "Clint", 0.5 },{ "Elliot", 0.5 },{ "Willy", 0.5 },{ "Sam", 0.5 },{ "Vincent", 0.5 },
+                    { "Clint", 0.5 },{ "Elliott", 0.5 },{ "Willy", 0.5 },{ "Sam", 0.5 },{ "Vincent", 0.5 },
                     { "Jodi", 0.5 },{ "Kent", 0.5 },{ "Haley", 0.5 },{ "Emily", 0.5 },{ "Leah", 0.5 },
                     { "Shane", 0.5 },{ "Jas", 0.5 },{ "Marnie", 0.5 },{ "Linus", 0.5 },{ "Leo", 0.5 },
                     { "Sebastian", 0.5 },{ "Robin", 0.5 },{ "Maru", 0.5 },{ "Demetrius", 0.5 }
@@ -714,7 +714,7 @@ namespace PostHelpWantedAds
 
         private void enableDelivery(object sender, WarpedEventArgs e)
         {
-            if (e.NewLocation is Farm && e.OldLocation is FarmHouse && !_moddedData.HasTriggeredMorningEvent)
+            if (e.NewLocation is Farm && e.OldLocation is FarmHouse && !_moddedData.HasTriggeredMorningEvent && _moddedData.PostedItem != "")
             {
                 _moddedData.HasTriggeredMorningEvent = true;
                 Helper.Data.WriteSaveData("PostHelpWantedAds", _moddedData);
@@ -744,6 +744,15 @@ namespace PostHelpWantedAds
                          .Replace("{{itemId}}", _moddedData.ItemIdStr)
                          .Replace("{{farmName}}", Game1.getFarm().Name);
 
+                    // **For testing purposes only**
+                    //string template = _eventScripts["Willy"]["Fish"];
+                    //string eventScript = template
+                    //     .Replace("{{villager}}", "Willy")
+                    //     .Replace("{{playerName}}", Game1.player.Name)
+                    //     .Replace("{{item}}", _moddedData.PostedItem)
+                    //     .Replace("{{itemId}}", _moddedData.ItemIdStr)
+                    //     .Replace("{{farmName}}", Game1.player.farmName.Value);
+
                     Game1.currentLocation.startEvent(new StardewValley.Event(eventScript));
                 }
                 catch
@@ -757,8 +766,7 @@ namespace PostHelpWantedAds
                         $"pause 250/" +
                         $"playSound give_gift/" +
                         $"addItem (O){_moddedData.ItemIdStr} 1/" +
-                        $"pause 500/" +
-                        $"pause 500/" +
+                        $"pause 1000/" +
                         $"emote farmer 20/" +
                         $"pause 1000/" +
                         $"speak {_moddedData.ChosenVillager} \"$h Glad I could help. Enjoy your {_moddedData.PostedItem}!\"/" +
