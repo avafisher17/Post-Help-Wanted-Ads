@@ -4,7 +4,7 @@ Item category, player luck, and friendship levels are all factored in when selec
 
 ***Status: In development — core menu, quest journal, and delivery functionalities complete***
 
-[Posting Ads Demo](https://youtu.be/zGapywRzIdc) | [Getting a Delivery Demo](https://youtu.be/3IBLdWSyjh0)
+[Posting Ads Demo](https://youtu.be/zGapywRzIdc) | [Getting a Delivery Demo](https://youtu.be/3IBLdWSyjh0) | [Custom Delivery Cut-Scene Example](https://youtu.be/TjkijyeraTA)
 
 ## Features
 
